@@ -15,17 +15,18 @@ const STYLE_CONTENT = `
 .${CLASS_NAME} svg{display:block}
 `
 
-/** inject the toggle styles once per document */
-function useToggleStyles(): void {
-  React.useEffect(() => {
-    if (typeof document === "undefined" || document.getElementById(STYLE_ID)) {
-      return
-    }
-    const el = document.createElement("style")
-    el.id = STYLE_ID
-    el.textContent = STYLE_CONTENT
-    document.head.appendChild(el)
-  }, [])
+/**
+ * toggle styles rendered with the component so they exist on first paint
+ *
+ * react 19 hoists this into the head (ssr included) and dedupes it by href,
+ * react 18 renders it inline next to the button
+ */
+function ToggleStyles() {
+  return (
+    <style href={STYLE_ID} precedence={STYLE_ID}>
+      {STYLE_CONTENT}
+    </style>
+  )
 }
 
 interface IconProps {
@@ -108,8 +109,6 @@ export interface ThemeToggleProps extends Omit<React.ButtonHTMLAttributes<HTMLBu
 export function ThemeToggle({ size = 36, label = "Switch theme", icons, className, style, ...rest }: ThemeToggleProps) {
   const { preference, theme, mounted, cycle } = useTheme()
 
-  useToggleStyles()
-
   // before hydration render the neutral system icon so markup matches the
   // server, then swap to the real preference once mounted
   const shown = mounted ? preference : "system"
@@ -127,16 +126,19 @@ export function ThemeToggle({ size = 36, label = "Switch theme", icons, classNam
       : { "--tt-hover": "rgba(0,0,0,.06)", "--tt-ring": "rgba(0,0,0,.25)" }
 
   return (
-    <button
-      type="button"
-      className={className ? `${CLASS_NAME} ${className}` : CLASS_NAME}
-      style={{ width: size, height: size, ...(tokens as React.CSSProperties), ...style }}
-      onClick={cycle}
-      aria-label={label}
-      title={label}
-      suppressHydrationWarning
-      {...rest}>
-      {icons?.[shown] ?? defaultIcon[shown]}
-    </button>
+    <>
+      <ToggleStyles />
+      <button
+        type="button"
+        className={className ? `${CLASS_NAME} ${className}` : CLASS_NAME}
+        style={{ width: size, height: size, ...(tokens as React.CSSProperties), ...style }}
+        onClick={cycle}
+        aria-label={label}
+        title={label}
+        suppressHydrationWarning
+        {...rest}>
+        {icons?.[shown] ?? defaultIcon[shown]}
+      </button>
+    </>
   )
 }
