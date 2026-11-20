@@ -44,7 +44,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "release": "bunx @danfq/nextver",
+    "release": "gh workflow run release.yml --ref main",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
