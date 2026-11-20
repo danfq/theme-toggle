@@ -1,6 +1,6 @@
 {
   "name": "@danfq/theme-toggle",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tiny, SSR-safe light/dark/system theme toggle for React with a zero-dependency, self-styled button.",
   "type": "module",
   "license": "MIT",
