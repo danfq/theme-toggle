@@ -5,7 +5,16 @@
   "type": "module",
   "license": "MIT",
   "author": "DanFQ",
-  "keywords": ["react", "theme", "dark-mode", "light-dark", "theme-toggle", "ssr", "astro", "color-scheme"],
+  "keywords": [
+    "react",
+    "theme",
+    "dark-mode",
+    "light-dark",
+    "theme-toggle",
+    "ssr",
+    "astro",
+    "color-scheme"
+  ],
   "sideEffects": false,
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -22,11 +31,14 @@
       "require": "./dist/react.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
+    "release": "bunx @danfq/nextver",
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
