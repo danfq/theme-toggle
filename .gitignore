@@ -1,4 +1,5 @@
 node_modules
 dist
+RELEASE_NOTES.md
 *.log
 .DS_Store

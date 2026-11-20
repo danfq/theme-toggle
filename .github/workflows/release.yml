@@ -1,0 +1,73 @@
+# cuts a release from the conventional commits since the last tag
+#
+# nextver picks the bump and writes the notes, the rest of the job commits,
+# tags, publishes to npm and creates the github release
+
+name: Release
+
+on:
+  workflow_dispatch:
+
+# id-token lets npm trusted publishing authenticate without a token
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: release
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      # nextver needs the full history and tags
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # bumps package.json and writes RELEASE_NOTES.md, fails when there is
+      # nothing to release
+      - name: Compute version and notes
+        id: version
+        run: bunx @danfq/nextver
+
+      # tagged locally first, so a failed publish never leaves a pushed release
+      - name: Commit and tag release
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(release): $TAG"
+          git tag -a "$TAG" -m "$TAG"
+
+      # prepublishOnly builds dist, trusted publishing needs npm 11.5.1+
+      - name: Publish to npm
+        run: |
+          npm install -g npm@latest
+          npm publish
+
+      - name: Push release
+        run: git push origin HEAD:main --follow-tags
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes-file RELEASE_NOTES.md \
+            --generate-notes
