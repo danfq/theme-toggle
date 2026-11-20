@@ -5,6 +5,12 @@
   "type": "module",
   "license": "MIT",
   "author": "DanFQ",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danfq/theme-toggle.git"
+  },
+  "homepage": "https://github.com/danfq/theme-toggle#readme",
+  "bugs": "https://github.com/danfq/theme-toggle/issues",
   "keywords": [
     "react",
     "theme",
